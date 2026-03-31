@@ -1,6 +1,0 @@
-com\skillsync\skill\SkillServiceApplication.class
-com\skillsync\skill\service\SkillService.class
-com\skillsync\skill\controller\SkillController.class
-com\skillsync\skill\entity\Skill.class
-com\skillsync\skill\repository\SkillRepository.class
-com\skillsync\skill\entity\Skill$SkillBuilder.class

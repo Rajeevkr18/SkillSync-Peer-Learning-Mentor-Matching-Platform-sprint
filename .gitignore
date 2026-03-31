@@ -1,0 +1,7 @@
+target/
+*.jar
+*.class
+*.log
+node_modules/
+dist/
+.vscode/
