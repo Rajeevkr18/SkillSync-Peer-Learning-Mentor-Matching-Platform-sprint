@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/skillsync_auth?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+jwt:
+  secret: SkillSyncSuperSecretKeyForJWTTokenGeneration2025PlatformSecureKey123456789
+  expiration: 86400000
+
+springdoc:
+  api-docs:
+    path: /auth/v3/api-docs

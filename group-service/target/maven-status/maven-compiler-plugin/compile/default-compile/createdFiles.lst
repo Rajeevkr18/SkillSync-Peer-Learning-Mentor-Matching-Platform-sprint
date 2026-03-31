@@ -1,0 +1,15 @@
+com\skillsync\group\dto\GroupResponse$MemberInfo.class
+com\skillsync\group\controller\GroupController.class
+com\skillsync\group\dto\GroupResponse$MemberInfo$MemberInfoBuilder.class
+com\skillsync\group\entity\LearningGroup.class
+com\skillsync\group\dto\GroupResponse$GroupResponseBuilder.class
+com\skillsync\group\entity\GroupMember$GroupMemberBuilder.class
+com\skillsync\group\repository\GroupMemberRepository.class
+com\skillsync\group\repository\GroupRepository.class
+com\skillsync\group\dto\GroupResponse.class
+com\skillsync\group\dto\GroupRequest$GroupRequestBuilder.class
+com\skillsync\group\GroupServiceApplication.class
+com\skillsync\group\dto\GroupRequest.class
+com\skillsync\group\entity\GroupMember.class
+com\skillsync\group\entity\LearningGroup$LearningGroupBuilder.class
+com\skillsync\group\service\GroupService.class

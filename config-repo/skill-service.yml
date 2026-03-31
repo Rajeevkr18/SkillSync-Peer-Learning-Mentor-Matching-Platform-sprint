@@ -1,0 +1,12 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: skill-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/skillsync_skills?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+springdoc:
+  api-docs:
+    path: /skills/v3/api-docs

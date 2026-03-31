@@ -1,0 +1,9 @@
+2026.03.30 10:30:43 INFO  app[][o.s.a.AppFileSystem] Cleaning or creating temp directory /opt/sonarqube/temp
+2026.03.30 10:30:43 INFO  app[][o.s.a.es.EsSettings] Elasticsearch listening on [HTTP: 127.0.0.1:9001, TCP: 127.0.0.1:38269]
+2026.03.30 10:30:44 INFO  app[][o.s.a.ProcessLauncherImpl] Launch process[ELASTICSEARCH] from [/opt/sonarqube/elasticsearch]: /opt/java/openjdk/bin/java -Xms4m -Xmx64m -XX:+UseSerialGC -Dcli.name=server -Dcli.script=./bin/elasticsearch -Dcli.libs=lib/tools/server-cli -Des.path.home=/opt/sonarqube/elasticsearch -Des.path.conf=/opt/sonarqube/temp/conf/es -Des.distribution.type=tar -cp /opt/sonarqube/elasticsearch/lib/*:/opt/sonarqube/elasticsearch/lib/cli-launcher/* org.elasticsearch.launcher.CliToolLauncher
+2026.03.30 10:30:44 INFO  app[][o.s.a.SchedulerImpl] Waiting for Elasticsearch to be up and running
+
+ERROR: Elasticsearch exited unexpectedly, with exit code 137
+2026.03.30 10:31:01 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [ElasticSearch]: 137
+2026.03.30 10:31:01 INFO  app[][o.s.a.SchedulerImpl] Process[ElasticSearch] is stopped
+2026.03.30 10:31:01 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped

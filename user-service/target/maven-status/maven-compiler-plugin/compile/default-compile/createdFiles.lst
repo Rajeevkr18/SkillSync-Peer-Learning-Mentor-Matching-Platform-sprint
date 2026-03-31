@@ -1,0 +1,10 @@
+com\skillsync\user\entity\UserProfile.class
+com\skillsync\user\dto\UserProfileResponse.class
+com\skillsync\user\repository\UserProfileRepository.class
+com\skillsync\user\UserServiceApplication.class
+com\skillsync\user\dto\UserProfileResponse$UserProfileResponseBuilder.class
+com\skillsync\user\service\UserService.class
+com\skillsync\user\controller\UserController.class
+com\skillsync\user\entity\UserProfile$UserProfileBuilder.class
+com\skillsync\user\dto\UserProfileRequest$UserProfileRequestBuilder.class
+com\skillsync\user\dto\UserProfileRequest.class

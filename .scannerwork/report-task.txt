@@ -1,0 +1,6 @@
+projectKey=skillsync
+serverUrl=http://localhost:9000
+serverVersion=10.5.1.90531
+dashboardUrl=http://localhost:9000/dashboard?id=skillsync
+ceTaskId=105ef426-654c-4dbe-b488-3a13f86c2a21
+ceTaskUrl=http://localhost:9000/api/ce/task?id=105ef426-654c-4dbe-b488-3a13f86c2a21

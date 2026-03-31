@@ -1,0 +1,101 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+
+        - id: mentor-service
+          uri: lb://mentor-service
+          predicates:
+            - Path=/mentors/**
+
+        - id: skill-service
+          uri: lb://skill-service
+          predicates:
+            - Path=/skills/**
+
+        - id: session-service
+          uri: lb://session-service
+          predicates:
+            - Path=/sessions/**
+
+        - id: group-service
+          uri: lb://group-service
+          predicates:
+            - Path=/groups/**
+
+        - id: review-service
+          uri: lb://review-service
+          predicates:
+            - Path=/reviews/**
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notifications/**
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth Service
+        url: /auth/v3/api-docs
+      - name: User Service
+        url: /users/v3/api-docs
+      - name: Mentor Service
+        url: /mentors/v3/api-docs
+      - name: Skill Service
+        url: /skills/v3/api-docs
+      - name: Session Service
+        url: /sessions/v3/api-docs
+      - name: Group Service
+        url: /groups/v3/api-docs
+      - name: Review Service
+        url: /reviews/v3/api-docs
+      - name: Notification Service
+        url: /notifications/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always

@@ -1,0 +1,12 @@
+com\skillsync\review\entity\Review$ReviewBuilder.class
+com\skillsync\review\dto\ReviewRequest$ReviewRequestBuilder.class
+com\skillsync\review\dto\ReviewRequest.class
+com\skillsync\review\dto\MentorReviewsResponse.class
+com\skillsync\review\dto\MentorReviewsResponse$ReviewInfo.class
+com\skillsync\review\ReviewServiceApplication.class
+com\skillsync\review\controller\ReviewController.class
+com\skillsync\review\repository\ReviewRepository.class
+com\skillsync\review\dto\MentorReviewsResponse$ReviewInfo$ReviewInfoBuilder.class
+com\skillsync\review\service\ReviewService.class
+com\skillsync\review\entity\Review.class
+com\skillsync\review\dto\MentorReviewsResponse$MentorReviewsResponseBuilder.class

@@ -1,0 +1,5 @@
+com\skillsync\auth\entity\Role.class
+com\skillsync\auth\dto\LoginRequest.class
+com\skillsync\auth\entity\User.class
+com\skillsync\auth\repository\UserRepository.class
+com\skillsync\auth\security\SecurityConfig.class

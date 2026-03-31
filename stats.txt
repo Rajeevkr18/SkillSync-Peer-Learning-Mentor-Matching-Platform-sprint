@@ -1,0 +1,16 @@
+CONTAINER ID   NAME                   CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+022ab17a30f4   session-service        0.33%     212.9MiB / 384MiB     55.44%    229kB / 283kB     308MB / 82.8MB   41
+ca0b99fd9858   review-service         0.20%     213.4MiB / 384MiB     55.58%    228kB / 282kB     292MB / 67.6MB   41
+bce7454e8b2f   group-service          0.27%     200.7MiB / 384MiB     52.27%    230kB / 284kB     286MB / 88.3MB   41
+2abd9d64a3c7   notification-service   0.17%     203.1MiB / 384MiB     52.89%    266kB / 325kB     335MB / 84MB     45
+b4299a069c70   skill-service          0.22%     192.6MiB / 384MiB     50.16%    375kB / 710kB     298MB / 137MB    42
+ef60934691ad   mentor-service         0.19%     183MiB / 384MiB       47.66%    230kB / 283kB     291MB / 159MB    41
+350e40872efa   user-service           0.18%     196.4MiB / 384MiB     51.16%    383kB / 715kB     405MB / 173MB    42
+6bfe6ef4f8d0   auth-service           0.23%     202.5MiB / 384MiB     52.73%    402kB / 956kB     387MB / 180MB    42
+ec5e157ebbe1   api-gateway            0.14%     198.1MiB / 384MiB     51.58%    181kB / 228kB     303MB / 133MB    37
+8ef3126d4642   zipkin                 0.13%     192MiB / 3.652GiB     5.13%     1.54MB / 462kB    834MB / 197MB    76
+0c6f4ced53c3   service-registry       1.88%     183.2MiB / 512MiB     35.78%    1.72MB / 1.24MB   514MB / 112MB    63
+d2843d9fab6a   sonarqube-db           0.01%     24.73MiB / 3.652GiB   0.66%     5.11kB / 126B     379MB / 6.75MB   6
+cc5c286686f9   frontend               0.00%     1.34MiB / 3.652GiB    0.04%     7.11kB / 126B     7.22MB / 3.9MB   5
+dac90bb9198d   mysql                  1.27%     385.6MiB / 512MiB     75.31%    872B / 126B       162MB / 17.1MB   38
+e3bd6f094a8d   rabbitmq               0.34%     64.12MiB / 3.652GiB   1.71%     156kB / 288kB     568MB / 65.3MB   32

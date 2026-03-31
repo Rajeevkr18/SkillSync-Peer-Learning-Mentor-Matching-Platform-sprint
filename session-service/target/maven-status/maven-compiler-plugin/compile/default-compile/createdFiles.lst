@@ -1,0 +1,17 @@
+com\skillsync\session\service\SessionService.class
+com\skillsync\session\entity\MentoringSession$MentoringSessionBuilder.class
+com\skillsync\session\repository\SessionRepository.class
+com\skillsync\session\dto\SessionEvent$SessionEventBuilder.class
+com\skillsync\session\dto\SessionEvent.class
+com\skillsync\session\SessionServiceApplication.class
+com\skillsync\session\client\UserClient.class
+com\skillsync\session\dto\SessionResponse.class
+com\skillsync\session\config\RabbitMQConfig.class
+com\skillsync\session\entity\MentoringSession.class
+com\skillsync\session\dto\external\UserResponse$UserResponseBuilder.class
+com\skillsync\session\dto\SessionResponse$SessionResponseBuilder.class
+com\skillsync\session\entity\SessionStatus.class
+com\skillsync\session\controller\SessionController.class
+com\skillsync\session\dto\external\UserResponse.class
+com\skillsync\session\dto\SessionRequest$SessionRequestBuilder.class
+com\skillsync\session\dto\SessionRequest.class

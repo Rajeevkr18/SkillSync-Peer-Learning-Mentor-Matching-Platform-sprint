@@ -1,0 +1,14 @@
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\AuthServiceApplication.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\dto\LoginRequest.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\entity\User.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\repository\RoleRepository.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\controller\AuthController.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\repository\UserRepository.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\dto\AuthResponse.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\entity\Role.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\exception\GlobalExceptionHandler.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\security\JwtUtil.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\dto\RegisterRequest.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\security\CustomUserDetailsService.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\security\SecurityConfig.java
+E:\SKILL_SYNC-SPRING\auth-service\src\main\java\com\skillsync\auth\service\AuthService.java

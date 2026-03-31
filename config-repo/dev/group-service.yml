@@ -1,0 +1,12 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: group-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/skillsync_groups?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+springdoc:
+  api-docs:
+    path: /groups/v3/api-docs

@@ -1,0 +1,25 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: session-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/skillsync_sessions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  exchange: skillsync.exchange
+  queue:
+    session: skillsync.session.queue
+  routing-key:
+    session-booked: session.booked
+    session-accepted: session.accepted
+
+springdoc:
+  api-docs:
+    path: /sessions/v3/api-docs

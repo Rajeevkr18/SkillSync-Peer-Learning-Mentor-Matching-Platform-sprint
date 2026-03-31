@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: skill-service
+  config:
+    import: "optional:configserver:http://config-server:8888"

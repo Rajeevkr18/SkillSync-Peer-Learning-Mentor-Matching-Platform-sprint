@@ -1,0 +1,15 @@
+server:
+  port: 8083
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: mentor-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/skillsync_mentors?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+springdoc:
+  api-docs:
+    path: /mentors/v3/api-docs
