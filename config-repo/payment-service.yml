@@ -13,8 +13,7 @@ spring:
 
 stripe:
   api:
-    key: ${STRIPE_SECRET_KEY:sk_test_4eC39HqLyjWDarjtT1zdp7dc}
-
+    key: ${STRIPE_SECRET_KEY}
 eureka:
   client:
     serviceUrl:

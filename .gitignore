@@ -2,6 +2,18 @@ target/
 *.jar
 *.class
 *.log
+
 node_modules/
 dist/
+
 .vscode/
+.idea/
+
+.env
+.env.*
+
+application-secret.yml
+
+# OS files
+.DS_Store
+Thumbs.db

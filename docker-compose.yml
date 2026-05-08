@@ -403,7 +403,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_payments?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - STRIPE_SECRET_KEY=sk_test_4eC39HqLyjWDarjtT1zdp7dc
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     networks:
       - skillsync-network
     depends_on:
