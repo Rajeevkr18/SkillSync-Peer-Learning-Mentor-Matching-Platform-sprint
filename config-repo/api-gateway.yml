@@ -56,6 +56,16 @@ spring:
           predicates:
             - Path=/notifications/**
 
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payments/**
+
+        - id: analytics-service
+          uri: lb://analytics-service
+          predicates:
+            - Path=/analytics/**
+
       globalcors:
         cors-configurations:
           '[/**]':
@@ -88,6 +98,10 @@ springdoc:
         url: /reviews/v3/api-docs
       - name: Notification Service
         url: /notifications/v3/api-docs
+      - name: Payment Service
+        url: /payments/v3/api-docs
+      - name: Analytics Service
+        url: /analytics/v3/api-docs
 
 management:
   endpoints:

@@ -24,4 +24,5 @@ public class SessionRequest {
     private Integer duration;
     private String topic;
     private String notes;
+    private Long availabilityId;
 }

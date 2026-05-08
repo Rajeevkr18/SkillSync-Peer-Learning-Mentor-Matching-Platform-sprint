@@ -18,11 +18,13 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
            "AND (:skill IS NULL OR m.skills LIKE %:skill%) " +
            "AND (:minRating IS NULL OR m.rating >= :minRating) " +
            "AND (:maxPrice IS NULL OR m.hourlyRate <= :maxPrice) " +
-           "AND (:available IS NULL OR m.available = :available)")
+           "AND (:available IS NULL OR m.available = :available) " +
+           "AND (:minExp IS NULL OR m.experience >= :minExp)")
     List<Mentor> searchMentors(
             @Param("skill") String skill,
             @Param("minRating") Double minRating,
             @Param("maxPrice") Double maxPrice,
-            @Param("available") Boolean available
+            @Param("available") Boolean available,
+            @Param("minExp") Integer minExp
     );
 }

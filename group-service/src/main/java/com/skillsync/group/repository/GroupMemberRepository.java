@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
     Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId);
     boolean existsByGroupIdAndUserId(Long groupId, Long userId);
+    void deleteByGroup(com.skillsync.group.entity.LearningGroup group);
 }

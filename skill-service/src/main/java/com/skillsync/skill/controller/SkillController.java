@@ -23,7 +23,7 @@ public class SkillController {
 
     @GetMapping
     public ResponseEntity<List<Skill>> getAllSkills(
-            @RequestParam(required = false) String category) {
+            @RequestParam(name = "category", required = false) String category) {
         if (category != null) {
             return ResponseEntity.ok(skillService.getSkillsByCategory(category));
         }
@@ -31,12 +31,12 @@ public class SkillController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Skill> getSkillById(@PathVariable Long id) {
+    public ResponseEntity<Skill> getSkillById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(skillService.getSkillById(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSkill(@PathVariable("id") Long id) {
         skillService.deleteSkill(id);
         return ResponseEntity.noContent().build();
     }

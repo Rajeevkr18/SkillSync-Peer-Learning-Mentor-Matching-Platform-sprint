@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+// Helper: always returns an array of skill strings regardless of backend type
+const getSkillsArray = (skills) => {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills.map(s => String(s).trim()).filter(Boolean);
+  if (typeof skills === 'string') return skills.split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+};
+
 export default function Groups() {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -32,7 +42,8 @@ export default function Groups() {
   const handleJoin = async (groupId) => {
     try {
       await api.joinGroup(groupId, user.id, token);
-      loadGroups();
+      // After joining, navigate to the group chat and pass a flag to send a "joined" message
+      navigate(`/chat?room=group-${groupId}&joined=true`);
     } catch (e) { alert(e.message); }
   };
 
@@ -43,7 +54,16 @@ export default function Groups() {
     } catch (e) { alert(e.message); }
   };
 
+  const handleDelete = async (groupId) => {
+    if (!window.confirm('Are you sure you want to delete this group?')) return;
+    try {
+      await api.deleteGroup(groupId, token);
+      loadGroups();
+    } catch (e) { alert(e.message); }
+  };
+
   const isMember = (group) => group.members?.some(m => m.userId === user.id);
+  const isAdmin = user?.roles?.includes('ROLE_ADMIN');
 
   return (
     <div className="fade-in">
@@ -71,17 +91,25 @@ export default function Groups() {
                 {group.description || 'No description'}
               </p>
               <div className="group-skills">
-                {group.skills?.split(',').filter(Boolean).map((s, i) => (
-                  <span key={i} className="badge badge-primary">{s.trim()}</span>
+                {getSkillsArray(group.skills).map((s, i) => (
+                  <span key={i} className="badge badge-primary">{s}</span>
                 ))}
               </div>
               <div className="group-meta">
                 <span className="member-count">👤 {group.memberCount || 0} members</span>
-                {isMember(group) ? (
-                  <button className="btn btn-danger btn-sm" onClick={() => handleLeave(group.id)}>Leave</button>
-                ) : (
-                  <button className="btn btn-success btn-sm" onClick={() => handleJoin(group.id)}>Join</button>
-                )}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {isMember(group) ? (
+                    <>
+                      <Link to={`/chat?room=group-${group.id}`} className="btn btn-primary btn-sm">💬 Chat</Link>
+                      <button className="btn btn-secondary btn-sm" onClick={() => handleLeave(group.id)}>Leave</button>
+                    </>
+                  ) : (
+                    <button className="btn btn-success btn-sm" onClick={() => handleJoin(group.id)}>Join</button>
+                  )}
+                  {isAdmin && (
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(group.id)}>Delete</button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

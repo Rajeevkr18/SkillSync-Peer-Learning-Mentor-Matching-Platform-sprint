@@ -31,7 +31,9 @@ public class LearningGroup {
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @ToString.Exclude
     private List<GroupMember> members = new ArrayList<>();
+
 
     @Column(name = "created_at")
     @Builder.Default

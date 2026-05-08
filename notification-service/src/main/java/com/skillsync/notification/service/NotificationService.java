@@ -12,6 +12,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository repository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     public Notification createNotification(Long userId, String message, String type) {
         Notification notification = Notification.builder()
@@ -20,7 +21,16 @@ public class NotificationService {
                 .type(type)
                 .isRead(false)
                 .build();
-        return repository.save(notification);
+        notification = repository.save(notification);
+
+        // Send real-time notification via WebSocket
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/notifications",
+                notification
+        );
+
+        return notification;
     }
 
     public List<Notification> getUserNotifications(Long userId) {

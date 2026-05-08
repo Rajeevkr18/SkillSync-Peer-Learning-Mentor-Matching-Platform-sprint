@@ -25,6 +25,11 @@ public class MentoringSession {
     @Column(nullable = false)
     private LocalDateTime sessionDate;
 
+    private Long availabilityId;
+
+    private String meetingLink;
+    private String meetingId;
+
     private Integer duration; // in minutes
 
     private String topic;

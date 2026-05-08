@@ -6,6 +6,7 @@ CREATE DATABASE IF NOT EXISTS skillsync_sessions;
 CREATE DATABASE IF NOT EXISTS skillsync_groups;
 CREATE DATABASE IF NOT EXISTS skillsync_reviews;
 CREATE DATABASE IF NOT EXISTS skillsync_notifications;
+CREATE DATABASE IF NOT EXISTS skillsync_payments;
 
 -- Grant root access from any host to allow microservices in the Docker network to connect
 CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '123456';

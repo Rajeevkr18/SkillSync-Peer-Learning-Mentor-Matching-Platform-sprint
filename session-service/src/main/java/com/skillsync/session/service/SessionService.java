@@ -20,6 +20,8 @@ public class SessionService {
     private final SessionRepository repository;
     private final RabbitTemplate rabbitTemplate;
     private final com.skillsync.session.client.UserClient userClient;
+    private final com.skillsync.session.client.MentorClient mentorClient;
+    private final com.skillsync.session.service.GoogleCalendarService googleCalendarService;
 
     @Value("${rabbitmq.exchange}")
     private String exchange;
@@ -40,15 +42,25 @@ public class SessionService {
 
         // Validate mentor existence
         try {
-            userClient.getUserProfile(request.getMentorId());
+            mentorClient.getMentorById(request.getMentorId());
         } catch (Exception e) {
             throw new RuntimeException("Mentor not found: " + request.getMentorId());
+        }
+
+        // Validate availability if slotId is provided
+        if (request.getAvailabilityId() != null) {
+            try {
+                mentorClient.markSlotAsBooked(request.getAvailabilityId());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to book slot: " + request.getAvailabilityId());
+            }
         }
 
         MentoringSession session = MentoringSession.builder()
                 .mentorId(request.getMentorId())
                 .learnerId(request.getLearnerId())
                 .sessionDate(request.getSessionDate())
+                .availabilityId(request.getAvailabilityId())
                 .duration(request.getDuration())
                 .topic(request.getTopic())
                 .notes(request.getNotes())
@@ -79,6 +91,11 @@ public class SessionService {
     public SessionResponse acceptSession(Long id) {
         MentoringSession session = findSession(id);
         session.setStatus(SessionStatus.ACCEPTED);
+        
+        // Generate Meeting Link
+        String link = googleCalendarService.createMeetLink(session.getTopic(), session.getSessionDate().toString());
+        session.setMeetingLink(link);
+        
         session = repository.save(session);
 
         // Publish SESSION_ACCEPTED event
@@ -119,7 +136,23 @@ public class SessionService {
     }
 
     public List<SessionResponse> getUserSessions(Long userId) {
-        return repository.findByLearnerIdOrMentorId(userId, userId).stream()
+        Long mentorId = null;
+        try {
+            com.skillsync.session.dto.external.MentorResponse mentor = mentorClient.getMentorByUserId(userId);
+            if (mentor != null) {
+                mentorId = mentor.getId();
+            }
+        } catch (Exception e) {
+            log.debug("User {} is not a mentor or mentor-service is unavailable", userId);
+        }
+
+        if (mentorId != null) {
+            return repository.findByLearnerIdOrMentorId(userId, mentorId).stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+        }
+        
+        return repository.findByLearnerId(userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -128,6 +161,17 @@ public class SessionService {
         return repository.findByMentorId(mentorId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<SessionResponse> getAllSessions() {
+        return repository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteSession(Long id) {
+        MentoringSession session = findSession(id);
+        repository.delete(session);
     }
 
     private MentoringSession findSession(Long id) {
@@ -145,6 +189,7 @@ public class SessionService {
                 .topic(session.getTopic())
                 .notes(session.getNotes())
                 .status(session.getStatus().name())
+                .meetingLink(session.getMeetingLink())
                 .createdAt(session.getCreatedAt())
                 .build();
     }

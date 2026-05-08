@@ -25,9 +25,9 @@ public class GroupController {
 
     @PostMapping("/{id}/join")
     public ResponseEntity<GroupResponse> joinGroup(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody(required = false) Object body,
-            @RequestParam(required = false) Long userId) {
+            @RequestParam(name = "userId", required = false) Long userId) {
         Long extractedUserId = extractUserId(body, userId);
         if (extractedUserId == null) {
             return ResponseEntity.badRequest().build();
@@ -37,9 +37,9 @@ public class GroupController {
 
     @PostMapping("/{id}/leave")
     public ResponseEntity<GroupResponse> leaveGroup(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody(required = false) Object body,
-            @RequestParam(required = false) Long userId) {
+            @RequestParam(name = "userId", required = false) Long userId) {
         Long extractedUserId = extractUserId(body, userId);
         if (extractedUserId == null) {
             return ResponseEntity.badRequest().build();
@@ -77,7 +77,13 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GroupResponse> getGroupById(@PathVariable Long id) {
+    public ResponseEntity<GroupResponse> getGroupById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(groupService.getGroupById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable("id") Long id) {
+        groupService.deleteGroup(id);
+        return ResponseEntity.noContent().build();
     }
 }

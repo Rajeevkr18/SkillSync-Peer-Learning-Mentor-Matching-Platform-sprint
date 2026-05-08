@@ -27,9 +27,37 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/validate")
-    public ResponseEntity<Map<String, Boolean>> validateToken(@RequestParam String token) {
+    @GetMapping("/debug/admin")
+    public ResponseEntity<Map<String, Object>> debugAdmin() {
+        return ResponseEntity.ok(authService.getAdminDebugInfo());
+    }
+
+    @RequestMapping(value = {"/validate", "/validated"}, method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<Map<String, Boolean>> validateToken(@RequestParam("token") String token) {
+        System.out.println("Validating token: " + (token != null ? token.substring(0, Math.min(token.length(), 10)) + "..." : "null"));
         boolean isValid = authService.validateToken(token);
         return ResponseEntity.ok(Map.of("valid", isValid));
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<AuthResponse> getUserInfo(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(authService.getUserInfo(userId));
+    }
+
+    @PutMapping("/users/{userId}/role")
+    public ResponseEntity<Void> updateUserRole(@PathVariable("userId") Long userId, @RequestParam("role") String role) {
+        authService.updateUserRole(userId, role);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
+        authService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test OK");
     }
 }

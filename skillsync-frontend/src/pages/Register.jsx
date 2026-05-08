@@ -16,6 +16,20 @@ export default function Register() {
     setLoading(true);
     try {
       const res = await api.register({ ...form, roles: [form.role] });
+
+      // Create the user profile in user-service right after auth registration
+      try {
+        await api.createProfile({
+          userId: res.id,
+          name: res.name,
+          email: res.email,
+          bio: '',
+          skills: '',
+        }, res.token);
+      } catch (_) {
+        // Profile may already exist (e.g. re-registration attempt) — safe to ignore
+      }
+
       login(res, res.token);
       navigate('/dashboard');
     } catch (err) {
@@ -66,14 +80,6 @@ export default function Register() {
                 type="password" className="form-input" placeholder="Min 6 characters"
                 value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required minLength={6}
               />
-            </div>
-            <div className="form-group">
-              <label>I want to join as</label>
-              <select className="form-input" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
-                <option value="ROLE_LEARNER">🎓 Learner</option>
-                <option value="ROLE_MENTOR">👨‍🏫 Mentor</option>
-                <option value="ROLE_ADMIN">⚙️ Admin</option>
-              </select>
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
               {loading ? '⏳ Creating account...' : '🚀 Create Account'}

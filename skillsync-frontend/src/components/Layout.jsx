@@ -16,7 +16,12 @@ export default function Layout() {
     { to: '/sessions', icon: '📅', label: 'Sessions' },
     { to: '/groups', icon: '👥', label: 'Groups' },
     { to: '/profile', icon: '👤', label: 'Profile' },
+    { to: '/chat', icon: '💬', label: 'Chat' },
   ];
+
+  if (isMentor()) {
+    navItems.push({ to: '/availability', icon: '🗓️', label: 'Availability' });
+  }
 
   if (isAdmin()) {
     navItems.push({ to: '/admin', icon: '⚙️', label: 'Admin Console' });

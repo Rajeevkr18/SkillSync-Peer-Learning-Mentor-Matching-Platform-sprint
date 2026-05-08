@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GroupService {
+
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository memberRepository;
@@ -31,8 +35,11 @@ public class GroupService {
                 .userId(request.getCreatedBy())
                 .build();
         memberRepository.save(member);
+        
+        // Add to list for immediate response population
+        group.getMembers().add(member);
 
-        return mapToResponse(groupRepository.findById(group.getId()).orElse(group));
+        return mapToResponse(group);
     }
 
     public GroupResponse joinGroup(Long groupId, Long userId) {
@@ -45,14 +52,20 @@ public class GroupService {
                 .userId(userId)
                 .build();
         memberRepository.save(member);
-        return mapToResponse(groupRepository.findById(groupId).orElse(group));
+        
+        group.getMembers().add(member);
+        
+        return mapToResponse(group);
     }
 
     public GroupResponse leaveGroup(Long groupId, Long userId) {
-        GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
-                .orElseThrow(() -> new RuntimeException("User is not a member of this group"));
-        memberRepository.delete(member);
-        return mapToResponse(findGroup(groupId));
+        LearningGroup group = findGroup(groupId);
+        boolean removed = group.getMembers().removeIf(m -> m.getUserId().equals(userId));
+        if (!removed) {
+            throw new RuntimeException("User is not a member of this group");
+        }
+        group = groupRepository.save(group);
+        return mapToResponse(group);
     }
 
     public List<GroupResponse> getAllGroups() {
@@ -63,6 +76,12 @@ public class GroupService {
 
     public GroupResponse getGroupById(Long id) {
         return mapToResponse(findGroup(id));
+    }
+
+    public void deleteGroup(Long id) {
+        LearningGroup group = findGroup(id);
+        memberRepository.deleteByGroup(group);
+        groupRepository.delete(group);
     }
 
     private LearningGroup findGroup(Long id) {

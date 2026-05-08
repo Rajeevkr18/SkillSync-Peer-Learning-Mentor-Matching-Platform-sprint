@@ -16,5 +16,6 @@ public class SessionResponse {
     private String topic;
     private String notes;
     private String status;
+    private String meetingLink;
     private LocalDateTime createdAt;
 }

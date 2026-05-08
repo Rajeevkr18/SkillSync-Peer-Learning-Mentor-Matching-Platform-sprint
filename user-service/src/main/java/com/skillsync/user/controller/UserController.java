@@ -23,13 +23,13 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserProfileResponse> getProfile(@PathVariable Long userId) {
+    public ResponseEntity<UserProfileResponse> getProfile(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(userService.getProfile(userId));
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<UserProfileResponse> updateProfile(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody UserProfileRequest request) {
         return ResponseEntity.ok(userService.updateProfile(userId, request));
     }
@@ -37,5 +37,18 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserProfileResponse>> getAllProfiles() {
         return ResponseEntity.ok(userService.getAllProfiles());
+    }
+
+    @PutMapping("/{userId}/status")
+    public ResponseEntity<UserProfileResponse> setUserActiveStatus(
+            @PathVariable("userId") Long userId,
+            @RequestParam("isActive") Boolean isActive) {
+        return ResponseEntity.ok(userService.setUserActiveStatus(userId, isActive));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable("userId") Long userId) {
+        userService.deleteProfile(userId);
+        return ResponseEntity.noContent().build();
     }
 }

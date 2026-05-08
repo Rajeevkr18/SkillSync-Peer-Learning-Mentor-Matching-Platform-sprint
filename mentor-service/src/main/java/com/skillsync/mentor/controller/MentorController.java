@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/mentors")
 @RequiredArgsConstructor
 public class MentorController {
-    
+
 
     private final MentorService mentorService;
 
@@ -24,42 +24,108 @@ public class MentorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mentorService.applyAsMentor(request));
     }
 
+
     @GetMapping
     public ResponseEntity<List<MentorResponse>> getMentors(
-            @RequestParam(required = false) String skill,
-            @RequestParam(required = false) Double minRating,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) Boolean available) {
-        if (skill != null || minRating != null || maxPrice != null || available != null) {
-            return ResponseEntity.ok(mentorService.searchMentors(skill, minRating, maxPrice, available));
+            @RequestParam(name = "skill", required = false) String skill,
+            @RequestParam(name = "minRating", required = false) Double minRating,
+            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(name = "available", required = false) Boolean available,
+            @RequestParam(name = "minExperience", required = false) Integer minExperience) {
+        if (skill != null || minRating != null || maxPrice != null || available != null || minExperience != null) {
+            return ResponseEntity.ok(mentorService.searchMentors(skill, minRating, maxPrice, available, minExperience));
         }
         return ResponseEntity.ok(mentorService.getAllApprovedMentors());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MentorResponse> getMentorById(@PathVariable Long id) {
+    public ResponseEntity<MentorResponse> getMentorById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(mentorService.getMentorById(id));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<MentorResponse> getMentorByUserId(@PathVariable Long userId) {
+    public ResponseEntity<MentorResponse> getMentorByUserId(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(mentorService.getMentorByUserId(userId));
+    }
+
+    private final com.skillsync.mentor.service.RecommendationService recommendationService;
+
+    @PostMapping("/recommendations")
+    public ResponseEntity<List<MentorResponse>> getRecommendations(@RequestBody List<String> skills) {
+        return ResponseEntity.ok(recommendationService.recommendMentors(skills));
     }
 
     @PutMapping("/{id}/availability")
     public ResponseEntity<MentorResponse> updateAvailability(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody Map<String, Boolean> body) {
         return ResponseEntity.ok(mentorService.updateAvailability(id, body.get("available")));
     }
 
     @PutMapping("/{id}/approve")
-    public ResponseEntity<MentorResponse> approveMentor(@PathVariable Long id) {
+    public ResponseEntity<MentorResponse> approveMentor(@PathVariable("id") Long id) {
         return ResponseEntity.ok(mentorService.approveMentor(id));
     }
 
     @GetMapping("/pending")
     public ResponseEntity<List<MentorResponse>> getPendingMentors() {
         return ResponseEntity.ok(mentorService.getPendingMentors());
+    }
+
+    @PostMapping("/{id}/slots")
+    public ResponseEntity<MentorAvailabilityResponse> addAvailabilitySlot(
+            @PathVariable("id") Long id,
+            @RequestBody MentorAvailabilityRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mentorService.addAvailability(id, request));
+    }
+
+    @GetMapping("/{id}/slots")
+    public ResponseEntity<List<MentorAvailabilityResponse>> getAvailabilitySlots(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(mentorService.getAvailability(id));
+    }
+
+    @GetMapping("/{id}/slots/available")
+    public ResponseEntity<List<MentorAvailabilityResponse>> getAvailableSlots(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(mentorService.getAvailableSlots(id));
+    }
+
+    @PutMapping("/slots/{slotId}/book")
+    public ResponseEntity<Void> markSlotAsBooked(@PathVariable("slotId") Long slotId) {
+        mentorService.markSlotAsBooked(slotId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/slots/{slotId}")
+    public ResponseEntity<Void> deleteAvailabilitySlot(@PathVariable("slotId") Long slotId) {
+        mentorService.deleteAvailabilitySlot(slotId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/slots/{slotId}")
+    public ResponseEntity<MentorAvailabilityResponse> updateAvailabilitySlot(
+            @PathVariable("slotId") Long slotId,
+            @RequestBody MentorAvailabilityRequest request) {
+        return ResponseEntity.ok(mentorService.updateAvailabilitySlot(slotId, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMentor(@PathVariable("id") Long id) {
+        mentorService.deleteMentor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/rating")
+    public ResponseEntity<Void> updateMentorRating(
+            @PathVariable("id") Long id,
+            @RequestParam(name = "rating") Double rating) {
+        mentorService.updateMentorRating(id, rating);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MentorResponse> updateMentor(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody MentorApplicationRequest request) {
+        return ResponseEntity.ok(mentorService.updateMentor(id, request));
     }
 }

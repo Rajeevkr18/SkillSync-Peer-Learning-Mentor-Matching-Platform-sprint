@@ -2,34 +2,83 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+// Helper: always returns an array of skill strings regardless of backend type
+const getSkillsArray = (skills) => {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills.map(s => String(s).trim()).filter(Boolean);
+  if (typeof skills === 'string') return skills.split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+};
+
 export default function Mentors() {
-  const { user, token, isLearner } = useAuth();
+  const { user, token, isLearner, isMentor, refreshUser } = useAuth();
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({ minExp: '', maxPrice: '', minRating: '' });
+  const [showFilters, setShowFilters] = useState(false);
   const [showBooking, setShowBooking] = useState(null);
   const [showApply, setShowApply] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [isApprovedStatus, setIsApprovedStatus] = useState(false);
   const [bookForm, setBookForm] = useState({ sessionDate: '', duration: 60, topic: '' });
   const [applyForm, setApplyForm] = useState({ bio: '', experience: '', hourlyRate: '', skills: '' });
 
-  useEffect(() => { loadMentors(); }, []);
+  useEffect(() => { 
+    loadMentors(); 
+    if (user) {
+      checkMentorStatus();
+      refreshUser(); // Refresh user roles on page load
+    }
+  }, []);
 
-  const loadMentors = async () => {
+  const checkMentorStatus = async () => {
     try {
-      const data = await api.getMentors(token);
+      const mentorData = await api.getMentorByUserId(user.id, token);
+      if (mentorData) {
+        setHasApplied(true);
+        setIsApprovedStatus(mentorData.approved);
+      }
+    } catch (e) {
+      setHasApplied(false);
+    }
+  };
+
+  const loadMentors = async (params = '') => {
+    setLoading(true);
+    try {
+      const data = await api.getMentors(token, params);
       setMentors(data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
 
   const handleSearch = async () => {
-    setLoading(true);
+    let queryParams = [];
+    if (search) queryParams.push(`skill=${encodeURIComponent(search)}`);
+    if (filters.minExp) queryParams.push(`minExperience=${filters.minExp}`);
+    if (filters.maxPrice) queryParams.push(`maxPrice=${filters.maxPrice}`);
+    if (filters.minRating) queryParams.push(`minRating=${filters.minRating}`);
+    
+    const params = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+    loadMentors(params);
+  };
+
+  const resetFilters = () => {
+    setFilters({ minExp: '', maxPrice: '', minRating: '' });
+    setSearch('');
+    loadMentors();
+  };
+
+  const handleBookingClick = async (mentor) => {
+    setShowBooking(mentor);
     try {
-      const params = search ? `?skill=${search}` : '';
-      const data = await api.getMentors(token, params);
-      setMentors(data || []);
-    } catch (e) { console.error(e); }
-    setLoading(false);
+      const slots = await api.getAvailableSlots(mentor.id, token);
+      setMentors(prev => prev.map(m => m.id === mentor.id ? { ...m, slots: Array.isArray(slots) ? slots : [] } : m));
+      setShowBooking(prev => ({ ...prev, slots: Array.isArray(slots) ? slots : [] }));
+    } catch (e) {
+      console.error('Failed to fetch slots:', e);
+    }
   };
 
   const handleBookSession = async (e) => {
@@ -39,12 +88,15 @@ export default function Mentors() {
         mentorId: showBooking.id,
         learnerId: user.id,
         sessionDate: bookForm.sessionDate,
-        duration: parseInt(bookForm.duration),
+        duration: 60, 
         topic: bookForm.topic,
+        availabilityId: bookForm.availabilityId,
       }, token);
-      alert('Session booked successfully!');
+      
+      alert('Session booked successfully! You can view it in your dashboard.');
       setShowBooking(null);
-      setBookForm({ sessionDate: '', duration: 60, topic: '' });
+      setBookForm({ sessionDate: '', duration: 60, topic: '', availabilityId: null });
+      loadMentors(); 
     } catch (e) { alert(e.message); }
   };
 
@@ -61,44 +113,90 @@ export default function Mentors() {
       }, token);
       alert('Mentor application submitted!');
       setShowApply(false);
+      setHasApplied(true);
+      setIsApprovedStatus(false);
     } catch (e) { alert(e.message); }
   };
 
-  const filtered = search
-    ? mentors.filter(m => m.skills?.toLowerCase().includes(search.toLowerCase()) || m.name?.toLowerCase().includes(search.toLowerCase()))
-    : mentors;
+  const handleDeleteMentor = async (mentorId) => {
+    if (!window.confirm('Are you sure you want to remove this mentor?')) return;
+    try {
+      await api.deleteMentor(mentorId, token);
+      loadMentors();
+    } catch (e) { alert(e.message); }
+  };
+
+  const isAdmin = user?.roles?.includes('ROLE_ADMIN');
 
   return (
     <div className="fade-in">
       <div className="page-header">
         <h1>🔍 Discover Mentors</h1>
         <p>Find the perfect mentor to guide your learning journey</p>
-        {isLearner() && (
+        {isLearner() && !isMentor() && !hasApplied && (
           <div className="actions">
             <button className="btn btn-primary" onClick={() => setShowApply(true)}>🎓 Apply as Mentor</button>
           </div>
         )}
+        {hasApplied && !isApprovedStatus && (
+          <div className="badge badge-info" style={{ marginTop: '1rem', padding: '0.75rem 1.25rem', fontSize: '0.9rem' }}>
+            ⏳ Your mentor application is pending admin approval
+          </div>
+        )}
+        {isMentor() && (
+          <div className="badge badge-success" style={{ marginTop: '1rem', padding: '0.75rem 1.25rem', fontSize: '0.9rem', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            ✅ You are a verified Mentor
+          </div>
+        )}
       </div>
 
-      <div className="search-bar">
-        <input
-          type="text" className="form-input" placeholder="Search by skill or name..."
-          value={search} onChange={e => setSearch(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSearch()}
-        />
-        <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+      <div className="search-section card" style={{ marginBottom: '2rem', padding: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ flex: 1 }}>
+            <input
+              type="text" className="form-input" placeholder="Search by skill (e.g. Java, React)..."
+              value={search} onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            />
+          </div>
+          <button className="btn btn-secondary" onClick={() => setShowFilters(!showFilters)}>
+            {showFilters ? 'Hide Filters' : 'More Filters'}
+          </button>
+          <button className="btn btn-primary" onClick={handleSearch} style={{ minWidth: '120px' }}>Search</button>
+        </div>
+
+        {showFilters && (
+          <div className="grid-3 slide-in" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+            <div className="form-group">
+              <label>Min Experience (Years)</label>
+              <input type="number" className="form-input" value={filters.minExp} onChange={e => setFilters({...filters, minExp: e.target.value})} placeholder="e.g. 5" />
+            </div>
+            <div className="form-group">
+              <label>Max Hourly Rate ($)</label>
+              <input type="number" className="form-input" value={filters.maxPrice} onChange={e => setFilters({...filters, maxPrice: e.target.value})} placeholder="e.g. 100" />
+            </div>
+            <div className="form-group">
+              <label>Min Rating (Stars)</label>
+              <input type="number" step="0.1" max="5" className="form-input" value={filters.minRating} onChange={e => setFilters({...filters, minRating: e.target.value})} placeholder="e.g. 4.5" />
+            </div>
+            <div style={{ gridColumn: 'span 3', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary btn-sm" onClick={resetFilters}>Reset All</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
         <div className="loading pulse">Loading mentors...</div>
-      ) : filtered.length === 0 ? (
+      ) : mentors.length === 0 ? (
         <div className="empty-state">
           <div className="icon">👨‍🏫</div>
-          <p>No mentors found</p>
+          <p>No mentors found matching your criteria</p>
+          <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }} onClick={resetFilters}>Clear Filters</button>
         </div>
       ) : (
         <div className="grid-3">
-          {filtered.map(mentor => (
+          {mentors.map(mentor => (
             <div key={mentor.id} className="card mentor-card">
               <div className="mentor-header">
                 <div className="mentor-avatar">{mentor.name?.[0]?.toUpperCase() || 'M'}</div>
@@ -107,12 +205,12 @@ export default function Mentors() {
                   <div className="mentor-exp">{mentor.experience || 0} years experience</div>
                 </div>
               </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-                {mentor.bio?.substring(0, 120) || 'No bio available'}
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', minHeight: '3rem' }}>
+                {mentor.bio?.substring(0, 120) || 'No bio available'}...
               </p>
               <div className="mentor-skills">
-                {mentor.skills?.split(',').map((s, i) => (
-                  <span key={i} className="badge badge-primary">{s.trim()}</span>
+                {getSkillsArray(mentor.skills).map((s, i) => (
+                  <span key={i} className="badge badge-primary">{s}</span>
                 ))}
               </div>
               <div className="mentor-meta">
@@ -121,8 +219,14 @@ export default function Mentors() {
               </div>
               {isLearner() && (
                 <button className="btn btn-primary btn-block btn-sm" style={{ marginTop: '1rem' }}
-                  onClick={() => setShowBooking(mentor)}>
+                  onClick={() => handleBookingClick(mentor)}>
                   📅 Book Session
+                </button>
+              )}
+              {isAdmin && (
+                <button className="btn btn-danger btn-block btn-sm" style={{ marginTop: '0.5rem' }}
+                  onClick={() => handleDeleteMentor(mentor.id)}>
+                  🗑️ Remove Mentor
                 </button>
               )}
             </div>
@@ -137,18 +241,23 @@ export default function Mentors() {
             <h2>📅 Book Session with {showBooking.name}</h2>
             <form onSubmit={handleBookSession}>
               <div className="form-group">
-                <label>Date & Time</label>
-                <input type="datetime-local" className="form-input" required
-                  value={bookForm.sessionDate} onChange={e => setBookForm({ ...bookForm, sessionDate: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label>Duration (minutes)</label>
-                <select className="form-input" value={bookForm.duration} onChange={e => setBookForm({ ...bookForm, duration: e.target.value })}>
-                  <option value="30">30 min</option>
-                  <option value="60">60 min</option>
-                  <option value="90">90 min</option>
-                  <option value="120">120 min</option>
-                </select>
+                <label>Available Slots</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto', padding: '0.5rem' }}>
+                  {Array.isArray(showBooking?.slots) && showBooking.slots.filter(s => !s.booked && !s.isBooked).length > 0 ? (
+                    showBooking.slots.filter(s => !s.booked && !s.isBooked).map(slot => (
+                      <button 
+                        key={slot.id} 
+                        type="button"
+                        className={`btn btn-sm ${bookForm.availabilityId === slot.id ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => setBookForm({ ...bookForm, availabilityId: slot.id, sessionDate: slot.startTime })}
+                      >
+                        {new Date(slot.startTime).toLocaleDateString()} {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </button>
+                    ))
+                  ) : (
+                    <p style={{ gridColumn: 'span 2', fontSize: '0.85rem', color: 'var(--text-muted)' }}>No available slots found. Please check back later.</p>
+                  )}
+                </div>
               </div>
               <div className="form-group">
                 <label>Topic</label>
@@ -156,7 +265,7 @@ export default function Mentors() {
                   value={bookForm.topic} onChange={e => setBookForm({ ...bookForm, topic: e.target.value })} required />
               </div>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Book Session</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={!bookForm.availabilityId}>Book Session</button>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowBooking(null)}>Cancel</button>
               </div>
             </form>

@@ -23,32 +23,43 @@ public class SessionController {
     }
 
     @PutMapping("/{id}/accept")
-    public ResponseEntity<SessionResponse> acceptSession(@PathVariable Long id) {
+    public ResponseEntity<SessionResponse> acceptSession(@PathVariable("id") Long id) {
         return ResponseEntity.ok(sessionService.acceptSession(id));
     }
 
     @PutMapping("/{id}/reject")
-    public ResponseEntity<SessionResponse> rejectSession(@PathVariable Long id) {
+    public ResponseEntity<SessionResponse> rejectSession(@PathVariable("id") Long id) {
         return ResponseEntity.ok(sessionService.rejectSession(id));
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<SessionResponse> cancelSession(@PathVariable Long id) {
+    public ResponseEntity<SessionResponse> cancelSession(@PathVariable("id") Long id) {
         return ResponseEntity.ok(sessionService.cancelSession(id));
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<SessionResponse> completeSession(@PathVariable Long id) {
+    public ResponseEntity<SessionResponse> completeSession(@PathVariable("id") Long id) {
         return ResponseEntity.ok(sessionService.completeSession(id));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<SessionResponse>> getUserSessions(@PathVariable Long userId) {
+    public ResponseEntity<List<SessionResponse>> getUserSessions(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(sessionService.getUserSessions(userId));
     }
 
     @GetMapping("/mentor/{mentorId}")
-    public ResponseEntity<List<SessionResponse>> getMentorSessions(@PathVariable Long mentorId) {
+    public ResponseEntity<List<SessionResponse>> getMentorSessions(@PathVariable("mentorId") Long mentorId) {
         return ResponseEntity.ok(sessionService.getMentorSessions(mentorId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SessionResponse>> getAllSessions() {
+        return ResponseEntity.ok(sessionService.getAllSessions());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSession(@PathVariable("id") Long id) {
+        sessionService.deleteSession(id);
+        return ResponseEntity.noContent().build();
     }
 }

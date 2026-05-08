@@ -59,6 +59,20 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserProfileResponse setUserActiveStatus(Long userId, Boolean isActive) {
+        UserProfile profile = repository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
+        profile.setIsActive(isActive);
+        profile.setUpdatedAt(LocalDateTime.now());
+        return mapToResponse(repository.save(profile));
+    }
+
+    public void deleteProfile(Long userId) {
+        UserProfile profile = repository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
+        repository.delete(profile);
+    }
+
     private UserProfileResponse mapToResponse(UserProfile profile) {
         return UserProfileResponse.builder()
                 .id(profile.getId())
@@ -70,6 +84,7 @@ public class UserService {
                 .profileImage(profile.getProfileImage())
                 .phone(profile.getPhone())
                 .location(profile.getLocation())
+                .isActive(profile.getIsActive())
                 .createdAt(profile.getCreatedAt())
                 .updatedAt(profile.getUpdatedAt())
                 .build();

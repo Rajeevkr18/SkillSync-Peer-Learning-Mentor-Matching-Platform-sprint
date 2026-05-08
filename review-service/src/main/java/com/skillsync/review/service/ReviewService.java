@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository repository;
+    private final org.springframework.web.client.RestTemplate restTemplate;
 
     public Review submitReview(ReviewRequest request) {
         Review review = Review.builder()
@@ -23,7 +24,31 @@ public class ReviewService {
                 .rating(request.getRating())
                 .comment(request.getComment())
                 .build();
-        return repository.save(review);
+        review = repository.saveAndFlush(review);
+        System.out.println("DEBUG: Review saved with ID: " + review.getId());
+
+        // Update mentor's overall rating in mentor-service
+        try {
+            Double avgRating = repository.getAverageRatingByMentorId(request.getMentorId());
+            System.out.println("DEBUG: Calculated average rating for mentor " + request.getMentorId() + ": " + avgRating);
+            
+            if (avgRating != null) {
+                // Use UriComponentsBuilder to safely build the URL
+                String url = org.springframework.web.util.UriComponentsBuilder
+                        .fromHttpUrl("http://mentor-service/mentors/" + request.getMentorId() + "/rating")
+                        .queryParam("rating", avgRating)
+                        .toUriString();
+                
+                System.out.println("DEBUG: Calling mentor-service URL: " + url);
+                restTemplate.put(url, null);
+                System.out.println("DEBUG: Successfully called mentor-service to update rating.");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to update mentor rating in mentor-service: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return review;
     }
 
     public MentorReviewsResponse getMentorReviews(Long mentorId) {

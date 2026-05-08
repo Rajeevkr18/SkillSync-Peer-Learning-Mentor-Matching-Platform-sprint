@@ -36,6 +36,9 @@ public class UserProfile {
 
     private String location;
 
+    @Builder.Default
+    private Boolean isActive = true;
+
     @Column(name = "created_at")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -22,7 +22,7 @@ public class ReviewController {
     }
 
     @GetMapping("/mentor/{mentorId}")
-    public ResponseEntity<MentorReviewsResponse> getMentorReviews(@PathVariable Long mentorId) {
+    public ResponseEntity<MentorReviewsResponse> getMentorReviews(@PathVariable("mentorId") Long mentorId) {
         return ResponseEntity.ok(reviewService.getMentorReviews(mentorId));
     }
 }

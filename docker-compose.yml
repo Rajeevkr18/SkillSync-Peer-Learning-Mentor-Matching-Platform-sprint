@@ -8,7 +8,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
     ports:
       - "3307:3306"
     volumes:
@@ -19,7 +19,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 60s
     networks:
       - skillsync-network
 
@@ -34,15 +34,16 @@ services:
 
   service-registry:
     build: 
-      context: ./service-registry
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: service-registry/Dockerfile
+      network: host
     container_name: service-registry
     ports:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
@@ -64,8 +65,9 @@ services:
 
   config-server:
     build: 
-      context: ./config-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: config-server/Dockerfile
+      network: host
     container_name: config-server
     ports:
       - "8888:8888"
@@ -73,15 +75,15 @@ services:
       - SPRING_PROFILES_ACTIVE=native
       - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/app/config-repo,file:/app/config-repo/dev,file:/app/config-repo/prod
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     volumes:
       - ./config-repo:/app/config-repo
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -96,23 +98,24 @@ services:
 
   api-gateway:
     build: 
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-gateway/Dockerfile
+      network: host
     container_name: api-gateway
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - SPRING_CLOUD_CONFIG_FAIL_FAST=true
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-registry:8761/eureka/
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -129,23 +132,25 @@ services:
 
   auth-service:
     build: 
-      context: ./auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: auth-service/Dockerfile
+      network: host
     container_name: auth-service
     ports:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-registry:8761/eureka/
+
+      - SPRING_CLOUD_CONFIG_FAIL_FAST=true
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_auth?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -164,23 +169,24 @@ services:
 
   user-service:
     build: 
-      context: ./user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: user-service/Dockerfile
+      network: host
     container_name: user-service
     ports:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_users?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -199,23 +205,24 @@ services:
 
   mentor-service:
     build: 
-      context: ./mentor-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: mentor-service/Dockerfile
+      network: host
     container_name: mentor-service
     ports:
       - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_mentors?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -228,23 +235,24 @@ services:
 
   skill-service:
     build: 
-      context: ./skill-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: skill-service/Dockerfile
+      network: host
     container_name: skill-service
     ports:
       - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_skills?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -261,24 +269,25 @@ services:
 
   session-service:
     build: 
-      context: ./session-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: session-service/Dockerfile
+      network: host
     container_name: session-service
     ports:
       - "8085:8085"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_sessions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -291,23 +300,24 @@ services:
 
   group-service:
     build: 
-      context: ./group-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: group-service/Dockerfile
+      network: host
     container_name: group-service
     ports:
       - "8086:8086"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_groups?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -320,23 +330,24 @@ services:
 
   review-service:
     build: 
-      context: ./review-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: review-service/Dockerfile
+      network: host
     container_name: review-service
     ports:
       - "8087:8087"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_reviews?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -349,24 +360,25 @@ services:
 
   notification-service:
     build: 
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
+      network: host
     container_name: notification-service
     ports:
       - "8088:8088"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_notifications?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - JAVA_TOOL_OPTIONS=-Xmx128m -Xms128m
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms128m
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.1
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
     networks:
       - skillsync-network
     depends_on:
@@ -378,6 +390,56 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+      network: host
+    container_name: payment-service
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/skillsync_payments?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - STRIPE_SECRET_KEY=sk_test_4eC39HqLyjWDarjtT1zdp7dc
+    networks:
+      - skillsync-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: analytics-service/Dockerfile
+      network: host
+    container_name: analytics-service
+    ports:
+      - "8091:8091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - skillsync-network
+    depends_on:
+      service-registry:
+        condition: service_healthy
+
+  chat-service:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    ports:
+      - "8089:8089"
+    environment:
+      - PORT=8089
+    networks:
+      - skillsync-network
 
   frontend:
     build:

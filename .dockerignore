@@ -1,0 +1,13 @@
+target/
+!**/target/*.jar
+node_modules/
+.git/
+.github/
+.vscode/
+.idea/
+.scannerwork/
+*.log
+frontend/dist/
+frontend/node_modules/
+skillsync-frontend/dist/
+skillsync-frontend/node_modules/

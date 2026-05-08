@@ -21,6 +21,7 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <jjwt.version>0.12.5</jjwt.version>
         <springdoc.version>2.5.0</springdoc.version>
         <!-- SonarQube -->
@@ -43,6 +44,8 @@
         <module>group-service</module>
         <module>review-service</module>
         <module>notification-service</module>
+        <module>payment-service</module>
+        <module>analytics-service</module>
     </modules>
 
     <dependencyManagement>
@@ -128,16 +131,17 @@
                 <version>3.11.0.3922</version>
             </plugin>
 
-            <!-- Maven Compiler Plugin with Lombok -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
                 <configuration>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
+                            <version>1.18.36</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
